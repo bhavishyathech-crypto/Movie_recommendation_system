@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineSuggest - Movie Recommendations</title>
+    <a href="h4.py">python
+    </a>
+    <style>
+        /* Global Styles */
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --accent: #e74c3c;
+            --text: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--dark);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .logo span {
+            color: var(--secondary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: var(--primary);
+        }
+
+        .auth-buttons button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .login-btn {
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+        }
+
+        .login-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .signup-btn {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .signup-btn:hover {
+            background-color: #27ae60;
+        }
+
+        /* Main Content Styles */
+        main {
+            padding-top: 100px;
+            min-height: calc(100vh - 150px);
+        }
+
+        /* Login/Signup Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-submit:hover {
+            background-color: #2980b9;
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .form-switch {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .form-switch a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-switch a:hover {
+            text-decoration: underline;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/cbaf13a8-ea98-4599-a6e2-3f825e08e3b6.png');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+            margin-bottom: 40px;
+            border-radius: 10px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-box button:hover {
+            background-color: #27ae60;
+        }
+
+        /* Movie Grid */
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .movie-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 20px;
+        }
+
+        .movie-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .movie-info p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rating {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .watch-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .watch-btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .category-btn {
+            padding: 8px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .category-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* About Us Page */
+        .about-page {
+            display: none;
+        }
+
+        .about-section {
+            margin-bottom: 50px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .team-member {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-member img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 5px solid var(--light);
+        }
+
+        .team-member h3 {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .team-member p {
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 40px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: #bbb;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-column ul li a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #bbb;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .logo {
+                margin-bottom: 15px;
+            }
+
+            nav ul {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            nav ul li {
+                margin-left: 0;
+                margin-bottom: 10px;
+            }
+
+            .auth-buttons {
+                width: 100%;
+                margin-top: 15px;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .auth-buttons button {
+                margin-left: 0;
+                width: 48%;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .movie-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .movie-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 60px 0;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">Cine<span>Suggest</span></div>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#trending">Trending</a></li>
+                    <li><a href="#genres">Genres</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <button class="login-btn" id="open-login">Login</button>
+                <button class="signup-btn" id="open-signup">Sign Up</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Home Page -->
+        <div id="home-page">
+            <section class="hero">
+                <div class="container">
+                    <h1>Discover Your Next Favorite Movie</h1>
+                    <p>Personalized movie recommendations based on your taste and preferences.</p>
+                    <div class="search-box">
+                        <input type="text" placeholder="Search for movies...">
+                        <button>Search</button>
+                    </div>
+                </div>
+            </section>
+
+            <div class="container">
+                <h2 class="section-title">Recommended For You</h2>
+                <div class="movie-grid">
+                    <div class="movie-card">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6bf5e99e-64f2-4cf2-9f5a-5c76cf481092.png" alt="Sci-fi movie poster showing futuristic cityscape with flying cars and neon lights">
+                        <div class="movie-info">
+                            <h3>The Last Adventure</h3>
+                            <p>A thrilling sci-fi adventure about time travel and the fate of humanity.</p>
+                            <div class="movie-meta">
+                                <span class="rating">8.5/10</span>
+                                <button class="watch-btn">Watch Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/c602b1e6-cbe3-4b1b-9946-3682ffb38c21.png" alt="Romantic comedy movie poster featuring attractive couple laughing in Paris">
+                        <div class="movie-info">
+                            <h3>Paris Nights</h3>
+                            <p>A charming romantic comedy set in the city of love.</p>
+                            <div class="movie-meta">
+                                <span class="rating">7.8/10</span>
+                                <button class="watch-btn">Watch Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/62a7a124-0e04-4557-8671-4d636f633895.png" alt="Action thriller movie poster showing masked soldier with explosions in background">
+                        <div class="movie-info">
+                            <h3>Shadow Protocol</h3>
+                            <p>An elite team must stop a deadly global conspiracy before time runs out.</p>
+                            <div class="movie-meta">
+                                <span class="rating">9.2/10</span>
+                                <button class="watch-btn">Watch Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7f918187-98b5-43fc-9d59-6dfc097630aa.png" alt="Fantasy movie poster featuring magical castle in the clouds">
+                        <div class="movie-info">
+                            <h3>The Cloud Kingdom</h3>
+                            <p>A magical fantasy journey through mystical lands and ancient prophecies.</p>
+                            <div class="movie-meta">
+                                <span class="rating">8.9/10</span>
+                                <button class="watch-btn">Watch Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Trending Now</h2>
+                <div class="categories">
+                    <button class="category-btn active">All</button>
+                    <button class="category-btn">Action</button>
+                    <button class="category-btn">Comedy</button>
+                    <button class="category-btn">Drama</button>
+                    <button class="category-btn">Sci-Fi</button>
+                    <button class="category-btn">Horror</button>
+                    <button class="category-btn">Romance</button>
+                </div>
+                <div class="movie-grid">
+                    <div class="movie-card">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/51d3d2ec-f59b-4c86-b8fb-8e65c4b2e1c7.png" alt="Crime drama movie poster featuring gangsters in stylish suits">
+                        <div class="movie-info">
+                            <h3>Empire City</h3>
+                            <p>The rise and fall of an ambitious gangster in 1920s America.</p>
+                            <div class="movie-meta">
+                                <span class="rating">8.7/10</span>
+                                <button class="watch-btn">Watch Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d0be8e1d-7ab5-458d-a8fe-c69dc3342f1b.png" alt="Animation movie poster showing colorful robot characters">
+                        <div class="movie-info">
+                            <h3>Robo Friends</h3>
+                            <p>Animated adventure about robots learning the true meaning of friendship.</p>
+                            <div class="movie-meta">
+                                <span class="rating">8.1/10</span>
+                                <button class="watch-btn">Watch Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3e6690d1-2ccc-4977-8b37-ff02a81d82b0.png" alt="Historical drama poster featuring medieval knights">
+                        <div class="movie-info">
+                            <h3>The Knight's Oath</h3>
+                            <p>A historical drama about honor, betrayal and the crusades.</p>
+                            <div class="movie-meta">
+                                <span class="rating">8.4/10</span>
+                                <button class="watch-btn">Watch Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2d2a455a-77d8-4c24-b32c-ffa5db956b03.png" alt="Mystery thriller poster showing shadowy figure holding a bloody knife">
+                        <div class="movie-info">
+                            <h3>The Silent Witness</h3>
+                            <p>A small-town murder mystery with shocking twists.</p>
+                            <div class="movie-meta">
+                                <span class="rating">8.6/10</span>
+                                <button class="watch-btn">Watch Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Us Page (hidden by default) -->
+        <div id="about-page" class="about-page">
+            <div class="container">
+                <div class="about-section">
+                    <h2 class="section-title">Our Story</h2>
+                    <p>CineSuggest was founded in 2023 by a group of movie enthusiasts who wanted to revolutionize how people discover films. Our mission is to connect movie lovers with perfect recommendations based on their unique tastes.</p>
+                    <p>Using advanced algorithms and a deep understanding of cinematic storytelling, we've created the most personalized movie recommendation platform available today.</p>
+                </div>
+
+                <div class="about-section">
+                    <h2 class="section-title">Our Team</h2>
+                    <div class="team-grid">
+                        <div class="team-member">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/0e8b3631-26fd-4cd3-be23-9f231e556a6c.png" alt="Portrait of Sarah Johnson, CEO of CineSuggest">
+                            <h3>Sarah Johnson</h3>
+                            <p>CEO & Founder</p>
+                            <p>Film critic with 15 years of experience</p>
+                        </div>
+                        <div class="team-member">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3065099a-da4d-4212-a6f7-dd0abfca42dc.png" alt="Portrait of Michael Chen, Senior Developer at CineSuggest">
+                            <h3>Michael Chen</h3>
+                            <p>Senior Developer</p>
+                            <p>AI and machine learning expert</p>
+                        </div>
+                        <div class="team-member">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a63177a8-7a1a-4edf-b025-13b4fc131914.png" alt="Portrait of Emma Rodriguez, Creative Director at CineSuggest">
+                            <h3>Emma Rodriguez</h3>
+                            <p>Creative Director</p>
+                            <p>Former film producer and director</p>
+                        </div>
+                        <div class="team-member">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/4c0e0d0c-8f52-4600-94ff-fa05a893f6a6.png" alt="Portrait of David Wilson, Head of Content at CineSuggest">
+                            <h3>David Wilson</h3>
+                            <p>Head of Content</p>
+                            <p>Film historian and archivist</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>About CineSuggest</h3>
+                    <p>The most accurate movie recommendation engine powered by artificial intelligence and human curation.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Trending</a></li>
+                        <li><a href="#">Genres</a></li>
+                        <li><a href="#">Top Rated</a></li>
+                        <li><a href="#">Coming Soon</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Newsletter</h3>
+                    <p>Subscribe to get weekly movie recommendations and updates.</p>
+                    <div class="newsletter-form">
+                        <input type="email" placeholder="Your email address">
+                        <button>Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>© 2023 CineSuggest. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 class="form-title">Login to CineSuggest</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="form-submit">Login</button>
+                <div class="form-switch">
+                    Don't have an account? <a href="#" id="switch-to-signup">Sign up</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal" id="signup-modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 class="form-title">Create an Account</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm">Confirm Password</label>
+                    <input type="password" id="signup-confirm" required>
+                </div>
+                <button type="submit" class="form-submit">Sign Up</button>
+                <div class="form-switch">
+                    Already have an account? <a href="#" id="switch-to-login">Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const loginModal = document.getElementById('login-modal');
+        const signupModal = document.getElementById('signup-modal');
+        const openLoginBtn = document.getElementById('open-login');
+        const openSignupBtn = document.getElementById('open-signup');
+        const closeBtns = document.querySelectorAll('.close-btn');
+        const switchToLogin = document.getElementById('switch-to-login');
+        const switchToSignup = document.getElementById('switch-to-signup');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const homePage = document.getElementById('home-page');
+        const aboutPage = document.getElementById('about-page');
+        const navLinks = document.querySelectorAll('nav ul li a');
+
+        // Modal Functions
+        function openModal(modal) {
+            modal.style.display = 'flex';
+        }
+
+        function closeModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        // Event Listeners
+        openLoginBtn.addEventListener('click', () => openModal(loginModal));
+        openSignupBtn.addEventListener('click', () => openModal(signupModal));
+
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                closeModal(this.closest('.modal'));
+            });
+        });
+
+        switchToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeModal(signupModal);
+            openModal(loginModal);
+        });
+
+        switchToSignup.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeModal(loginModal);
+            openModal(signupModal);
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+
+        // Form Submission
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Login successful!');
+            closeModal(loginModal);
+        });
+
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+            
+            if (password !== confirm) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            alert('Account created successfully!');
+            closeModal(signupModal);
+        });
+
+        // Navigation
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = link.getAttribute('href');
+                
+                if (target === '#about') {
+                    homePage.style.display = 'none';
+                    aboutPage.style.display = 'block';
+                } else {
+                    homePage.style.display = 'block';
+                    aboutPage.style.display = 'none';
+                }
+            });
+        });
+
+        // Category Buttons
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
+
